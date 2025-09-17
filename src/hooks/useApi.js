@@ -431,3 +431,12 @@ export const useCreateWooCoupon = () => {
     },
   });
 };
+
+/** Fetches instrument purchase data for a single event, based on the new spec */
+export const useInstrumentData = (eventId) => {
+  return useQuery({
+    queryKey: ['instrumentData', eventId],
+    queryFn: () => fetchFromApi(`/graston/v1/events/${eventId}/instruments`),
+    enabled: !!eventId, // This query will only run if an eventId is provided
+  });
+};
