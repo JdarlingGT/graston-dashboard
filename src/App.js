@@ -9,6 +9,8 @@ import ProtectedRoute from './components/ProtectedRoute.jsx';
 import DashboardPage from './pages/DashboardPage';
 import EventsPage from './pages/EventsPage';
 import EventDetailPage from './pages/EventDetailPage';
+import OrdersPage from './pages/OrdersPage';
+import CEUCompliancePage from './pages/CEUCompliancePage';
 import AnalyticsPage from './pages/AnalyticsPage';
 import AttendeesPage from './pages/AttendeesPage';
 import LearnDashPage from './pages/LearnDashPage';
@@ -36,6 +38,8 @@ function App() {
                   <Route path="events" element={<EventsPage />} />
                   <Route path="events/:eventId/roster" element={<EventDetailPage />} />
                   <Route path="attendees" element={<AttendeesPage />} />
+                  <Route path="orders" element={<OrdersPage />} />
+                  <Route path="ceu-compliance" element={<CEUCompliancePage />} />
                 </Route>
 
                 {/* Protected Route for Analytics */}

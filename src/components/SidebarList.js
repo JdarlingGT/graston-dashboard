@@ -11,11 +11,15 @@ import SchoolIcon from '@mui/icons-material/School';
 import EmailIcon from '@mui/icons-material/Email';
 import AssignmentIcon from '@mui/icons-material/Assignment';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
+import ReceiptIcon from '@mui/icons-material/Receipt';
+import VerifiedUserIcon from '@mui/icons-material/VerifiedUser';
 
 const menuItems = [
   { text: 'Dashboard', icon: <DashboardIcon />, path: '/' },
   { text: 'Events', icon: <EventIcon />, path: '/events' },
+  { text: 'Orders', icon: <ReceiptIcon />, path: '/orders' },
   { text: 'Attendees', icon: <PeopleIcon />, path: '/attendees' },
+  { text: 'CEU Compliance', icon: <VerifiedUserIcon />, path: '/ceu-compliance' },
   { text: 'Analytics', icon: <BarChartIcon />, path: '/analytics' },
   { text: 'LearnDash', icon: <SchoolIcon />, path: '/learndash' },
   { text: 'FluentCRM', icon: <EmailIcon />, path: '/fluentcrm' },
