@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { API } from "../api/apiClient";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip } from "recharts";
 
-export default function Analytics() {
+function Analytics() {
   const { data, isLoading } = useQuery({
     queryKey: ["analytics-global"],
     queryFn: () => API.getOrders("?per_page=50"),
@@ -31,3 +31,5 @@ export default function Analytics() {
     </div>
   );
 }
+
+export default Analytics;

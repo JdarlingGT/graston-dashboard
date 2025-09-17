@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { API } from "../api/apiClient";
 
-export default function Certification() {
+function Certification() {
   const { data, isLoading } = useQuery({
     queryKey: ["attendees"],
     queryFn: () => API.getAttendees(),
@@ -31,3 +31,5 @@ export default function Certification() {
     </div>
   );
 }
+
+export default Certification;

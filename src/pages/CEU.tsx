@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { API } from "../api/apiClient";
 
-export default function CEU() {
+function CEU() {
   const [state, setState] = useState("TX");
   const { data, isLoading } = useQuery({
     queryKey: ["ceu", state],
@@ -38,3 +38,5 @@ export default function CEU() {
     </div>
   );
 }
+
+export default CEU;

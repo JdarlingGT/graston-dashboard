@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { API } from "../api/apiClient";
 
-export default function Attendees() {
+function Attendees() {
   const { data, isLoading } = useQuery({
     queryKey: ["attendees"],
     queryFn: () => API.getAttendees(),
@@ -37,3 +37,5 @@ export default function Attendees() {
     </div>
   );
 }
+
+export default Attendees;
