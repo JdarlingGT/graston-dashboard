@@ -1,38 +1,29 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { ThemeProvider, createTheme, CssBaseline } from '@mui/material';
+import { ThemeProvider, CssBaseline } from '@mui/material';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 import { AuthProvider } from './auth/AuthContext';
 import Layout from './components/Layout';
-import ProtectedRoute from './components/ProtectedRoute';
+import ProtectedRoute from './components/ProtectedRoute.jsx';
 import DashboardPage from './pages/DashboardPage';
 import EventsPage from './pages/EventsPage';
 import EventDetailPage from './pages/EventDetailPage';
 import AnalyticsPage from './pages/AnalyticsPage';
 import AttendeesPage from './pages/AttendeesPage';
+import LearnDashPage from './pages/LearnDashPage';
+import FluentCrmPage from './pages/FluentCrmPage';
+import GravityFormsPage from './pages/GravityFormsPage';
+import WooCommercePage from './pages/WooCommercePage';
+import { darkTheme } from './theme/theme'; // Import the new theme
 
 // Create a client for TanStack Query
 const queryClient = new QueryClient();
 
-// A modern, dark theme for the dashboard
-const darkTheme = createTheme({
-  palette: {
-    mode: 'dark',
-    primary: {
-      main: '#1976d2',
-    },
-    background: {
-      default: '#121212',
-      paper: '#1e1e1e',
-    },
-  },
-});
-
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <ThemeProvider theme={darkTheme}>
+      <ThemeProvider theme={darkTheme}> {/* Use the custom theme */}
         <CssBaseline />
         <AuthProvider>
           <Router>
@@ -50,6 +41,14 @@ function App() {
                 {/* Protected Route for Analytics */}
                 <Route element={<ProtectedRoute requiredPermission="gted_view_analytics" />}>
                    <Route path="analytics" element={<AnalyticsPage />} />
+                </Route>
+
+                {/* Additional Management Routes */}
+                <Route element={<ProtectedRoute requiredPermission="gted_manage_events" />}>
+                  <Route path="learndash" element={<LearnDashPage />} />
+                  <Route path="fluentcrm" element={<FluentCrmPage />} />
+                  <Route path="gravityforms" element={<GravityFormsPage />} />
+                  <Route path="woocommerce" element={<WooCommercePage />} />
                 </Route>
 
               </Route>

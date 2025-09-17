@@ -2,55 +2,26 @@
 
 import React from 'react';
 import { useParams } from 'react-router-dom';
-import { Typography, CircularProgress, Alert, Paper, Chip, Box, Button, Modal, Link } from '@mui/material';
+import { Typography, CircularProgress, Alert, Paper, Box, Button, Modal, Link } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
 import { useEventRoster } from '../hooks/useApi';
 import { usePusherSubscription } from '../hooks/usePusher';
 import SingleEnrollmentForm from '../components/forms/SingleEnrollmentForm';
 
-const getStatusChipColor = (color) => {
-  switch (color) {
-    case 'red': return 'error';
-    case 'orange': return 'warning';
-    case 'green': return 'success';
-    default: return 'default';
-  }
-};
-
 const columns = [
-    { field: 'display_name', headerName: 'Name', width: 200 },
-    { field: 'user_email', headerName: 'Email', width: 250 },
+    { field: 'first_name', headerName: 'First Name', width: 150 },
+    { field: 'last_name', headerName: 'Last Name', width: 150 },
+    { field: 'email', headerName: 'Email', width: 250 },
     { field: 'phone', headerName: 'Phone', width: 150 },
+    { field: 'status', headerName: 'Status', width: 120 },
     {
-      field: 'preCourseStatus',
-      headerName: 'Pre-Course Status',
-      width: 180,
-      renderCell: (params) => (
-        <Chip
-          label={params.value}
-          color={getStatusChipColor(params.row.preCourseStatusColor)}
-          size="small"
-        />
-      ),
-    },
-    {
-      field: 'hasPurchasedInstruments',
-      headerName: 'Instruments',
-      width: 120,
-      renderCell: (params) => (
-        <Typography color={params.value ? 'success.main' : 'error.main'}>
-          {params.value ? 'Yes' : 'No'}
-        </Typography>
-      ),
-    },
-    {
-        field: 'wpAdminEditUrl',
+        field: 'id',
         headerName: 'Actions',
         width: 150,
         renderCell: (params) => (
             <Button
               component={Link}
-              href={params.value}
+              href={`https://grastontechnique.com/wp-admin/admin.php?page=fluentcrm&action=edit&subscriber=${params.value}`}
               target="_blank"
               rel="noopener noreferrer"
               variant="outlined"
@@ -96,17 +67,16 @@ export default function EventDetailPage() {
     <>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
         <Typography variant="h4" gutterBottom>
-          Student Roster for Event #{rosterData?.event?.id || eventId}
+          Student Roster for Event #{eventId}
         </Typography>
         <Button variant="contained" onClick={handleOpenModal}>Add Participant</Button>
       </Box>
-      <Typography variant="h6" gutterBottom>{rosterData?.event?.title}</Typography>
 
       <Paper style={{ height: 650, width: '100%', marginTop: 2 }}>
         <DataGrid
-          rows={rosterData?.attendees || []}
+          rows={rosterData || []}
           columns={columns}
-          getRowId={(row) => row.user_email}
+          getRowId={(row) => row.email}
         />
       </Paper>
 

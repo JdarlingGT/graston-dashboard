@@ -4,8 +4,9 @@ import { create } from 'zustand';
 
 export const useUIStore = create((set) => ({
   // State for managing the sidebar on mobile devices
-  isSidebarOpen: false,
+  isSidebarOpen: true,
   toggleSidebar: () => set((state) => ({ isSidebarOpen: !state.isSidebarOpen })),
+  setSidebarOpen: (isOpen) => set({ isSidebarOpen: isOpen }),
 
   // State for a global notification banner
   notification: {
