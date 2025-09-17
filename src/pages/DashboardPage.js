@@ -1,7 +1,7 @@
 // src/pages/DashboardPage.js
 import React from 'react';
 import { Typography, Grid, Paper, CircularProgress, Alert, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Chip } from '@mui/material';
-import { useDangerZoneStatus, useOrders, useAttendees } from '../hooks/useApi'; // Import the new hooks
+import { useDangerZoneStatus, useOrders, useEvents } from '../hooks/useApi';
 
 const getStatusChipColor = (status) => {
   switch (status) {
@@ -12,46 +12,36 @@ const getStatusChipColor = (status) => {
   }
 };
 
+const StatsCard = ({ title, value, isLoading }) => (
+    <Paper sx={{ p: 2, textAlign: 'center' }}>
+        <Typography variant="h6">{title}</Typography>
+        <Typography variant="h4">
+            {isLoading ? <CircularProgress size={24} /> : value}
+        </Typography>
+    </Paper>
+);
+
 export default function DashboardPage() {
-  const { data: dangerZone, isLoading: dangerLoading, isError: dangerError } = useDangerZoneStatus();
-  const { data: ordersData, isLoading: ordersLoading, isError: ordersError } = useOrders();
-  const { data: attendeesData, isLoading: attendeesLoading, isError: attendeesError } = useAttendees();
+  const { data: dangerZone, isLoading: isLoadingDanger, isError: isErrorDanger, error: errorDanger } = useDangerZoneStatus();
+  const { data: orders, isLoading: isLoadingOrders } = useOrders();
+  const { data: events, isLoading: isLoadingEvents } = useEvents();
 
-  const isLoading = dangerLoading || ordersLoading || attendeesLoading;
-  const isError = dangerError || ordersError || attendeesError;
+  const totalRevenue = orders?.reduce((sum, order) => sum + parseFloat(order.total || 0), 0) || 0;
 
-  if (isLoading) return <CircularProgress />;
-  if (isError) return <Alert severity="error">Failed to load dashboard data. Please try again later.</Alert>;
-
-  // Calculate stats from the fetched data
-  const totalRevenue = ordersData?.reduce((sum, order) => sum + parseFloat(order.total || 0), 0) || 0;
-  const stats = {
-    revenue: totalRevenue,
-    orders: ordersData?.length || 0,
-    attendees: attendeesData?.subscribers?.length || 0
-  };
+  if (isErrorDanger) return <Alert severity="error">{errorDanger.message}</Alert>;
 
   return (
     <>
       <Typography variant="h4" gutterBottom>Command Center</Typography>
       <Grid container spacing={3} sx={{ mb: 4 }}>
         <Grid item xs={12} md={4}>
-          <Paper sx={{ p: 2, textAlign: 'center' }}>
-            <Typography variant="h6">Total Revenue</Typography>
-            <Typography variant="h4">${stats.revenue.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</Typography>
-          </Paper>
+            <StatsCard title="Total Revenue" value={`$${totalRevenue.toLocaleString(undefined, {minimumFractionDigits: 2})}`} isLoading={isLoadingOrders} />
         </Grid>
         <Grid item xs={12} md={4}>
-          <Paper sx={{ p: 2, textAlign: 'center' }}>
-            <Typography variant="h6">Total Orders</Typography>
-            <Typography variant="h4">{stats.orders.toLocaleString()}</Typography>
-          </Paper>
+            <StatsCard title="Total Orders" value={orders?.length.toLocaleString() || '...'} isLoading={isLoadingOrders} />
         </Grid>
         <Grid item xs={12} md={4}>
-          <Paper sx={{ p: 2, textAlign: 'center' }}>
-            <Typography variant="h6">Total Attendees</Typography>
-            <Typography variant="h4">{stats.attendees.toLocaleString()}</Typography>
-          </Paper>
+            <StatsCard title="Active Events" value={events?.length.toLocaleString() || '...'} isLoading={isLoadingEvents} />
         </Grid>
       </Grid>
 
@@ -68,17 +58,21 @@ export default function DashboardPage() {
             </TableRow>
           </TableHead>
           <TableBody>
-            {dangerZone?.map((event) => (
-              <TableRow key={event.event_id}>
-                <TableCell>{event.title}</TableCell>
-                <TableCell align="center">
-                  <Chip label={event.status} color={getStatusChipColor(event.status)} />
-                </TableCell>
-                <TableCell align="center">{event.daysUntil}</TableCell>
-                <TableCell align="center">{event.combined}</TableCell>
-                <TableCell align="center">{event.threshold}</TableCell>
-              </TableRow>
-            ))}
+            {isLoadingDanger ? (
+                <TableRow><TableCell colSpan={5} align="center"><CircularProgress /></TableCell></TableRow>
+            ) : (
+                dangerZone?.map((event) => (
+                  <TableRow key={event.event_id}>
+                    <TableCell>{event.title}</TableCell>
+                    <TableCell align="center">
+                      <Chip label={event.status} color={getStatusChipColor(event.status)} />
+                    </TableCell>
+                    <TableCell align="center">{event.daysUntil}</TableCell>
+                    <TableCell align="center">{event.combined}</TableCell>
+                    <TableCell align="center">{event.threshold}</TableCell>
+                  </TableRow>
+                ))
+            )}
           </TableBody>
         </Table>
       </TableContainer>

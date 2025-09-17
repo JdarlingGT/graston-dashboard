@@ -1,14 +1,10 @@
 // src/hooks/useApi.js
 
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
-const API_BASE_URL = ""; // Using proxy for development
+// The proxy in package.json handles the base URL during development
+const API_BASE_URL = "";
 
-/**
- * A helper function to fetch data from the API gateway.
- * @param {string} endpoint - The path to the API endpoint (e.g., '/events/danger-zone').
- * @returns {Promise<any>} - The JSON response from the API.
- */
 const fetchFromApi = async (endpoint) => {
   const response = await fetch(`${API_BASE_URL}${endpoint}`);
   if (!response.ok) {
@@ -17,9 +13,20 @@ const fetchFromApi = async (endpoint) => {
   return response.json();
 };
 
-// =============================================
-// React Query Hooks for API Endpoints
-// =============================================
+const postToApi = async (endpoint, data) => {
+    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+    });
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || `API Error: ${response.statusText}`);
+    }
+    return response.json();
+};
 
 /** Fetches the event danger zone status */
 export const useDangerZoneStatus = () => {
@@ -29,7 +36,7 @@ export const useDangerZoneStatus = () => {
   });
 };
 
-/** Fetches all events (LearnDash Groups / WooCommerce Products) */
+/** Fetches all events (WooCommerce Products) */
 export const useEvents = () => {
   return useQuery({
     queryKey: ['events'],
@@ -41,8 +48,9 @@ export const useEvents = () => {
 export const useEventRoster = (eventId) => {
   return useQuery({
     queryKey: ['eventRoster', eventId],
-    queryFn: () => fetchFromApi(`/events/${eventId}/attendees`),
-    enabled: !!eventId, // Only run the query if eventId is available
+    // This uses the custom endpoint from your blueprint for detailed roster data
+    queryFn: () => fetchFromApi(`/gted/v1/events/${eventId}/attendees`),
+    enabled: !!eventId,
   });
 };
 
@@ -67,5 +75,17 @@ export const useHealth = () => {
   return useQuery({
     queryKey: ['health'],
     queryFn: () => fetchFromApi('/health'),
+  });
+};
+
+/** A mutation hook for manually enrolling a single participant */
+export const useSingleEnrollment = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (enrollmentData) => postToApi('/gted/v1/attendees/single-enroll', enrollmentData),
+    onSuccess: (data, variables) => {
+      // When enrollment is successful, invalidate the roster query to trigger an automatic refresh
+      queryClient.invalidateQueries({ queryKey: ['eventRoster', variables.eventId] });
+    },
   });
 };
