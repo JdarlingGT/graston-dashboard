@@ -146,6 +146,50 @@ export const useWooProducts = (filters = {}) => {
   });
 };
 
+/** Fetches WooCommerce customers */
+export const useWooCustomers = (filters = {}) => {
+  const queryString = new URLSearchParams(filters).toString();
+  return useQuery({
+    queryKey: ['wooCustomers', filters],
+    queryFn: () => fetchFromApi(`/woo/customers${queryString ? `?${queryString}` : ''}`),
+  });
+};
+
+/** Fetches WooCommerce categories */
+export const useWooCategories = () => {
+  return useQuery({
+    queryKey: ['wooCategories'],
+    queryFn: () => fetchFromApi('/woo/products/categories'),
+  });
+};
+
+/** Fetches WooCommerce coupons */
+export const useWooCoupons = (filters = {}) => {
+  const queryString = new URLSearchParams(filters).toString();
+  return useQuery({
+    queryKey: ['wooCoupons', filters],
+    queryFn: () => fetchFromApi(`/woo/coupons${queryString ? `?${queryString}` : ''}`),
+  });
+};
+
+/** Fetches WooCommerce sales reports */
+export const useWooSalesReports = (filters = {}) => {
+  const queryString = new URLSearchParams(filters).toString();
+  return useQuery({
+    queryKey: ['wooSalesReports', filters],
+    queryFn: () => fetchFromApi(`/woo/reports/sales${queryString ? `?${queryString}` : ''}`),
+  });
+};
+
+/** Fetches WooCommerce top sellers */
+export const useWooTopSellers = (filters = {}) => {
+  const queryString = new URLSearchParams(filters).toString();
+  return useQuery({
+    queryKey: ['wooTopSellers', filters],
+    queryFn: () => fetchFromApi(`/woo/reports/top_sellers${queryString ? `?${queryString}` : ''}`),
+  });
+};
+
 /** FluentCRM API Hooks */
 
 /** Fetches FluentCRM subscribers with filtering */
@@ -165,6 +209,14 @@ export const useFluentCRMTags = () => {
   });
 };
 
+/** Fetches FluentCRM campaigns */
+export const useFluentCrmCampaigns = () => {
+  return useQuery({
+    queryKey: ['fluentCrmCampaigns'],
+    queryFn: () => fetchFromApi('/fluent-crm/v2/campaigns'),
+  });
+};
+
 /** Gravity Forms API Hooks */
 
 /** Fetches Gravity Forms entries */
@@ -173,6 +225,23 @@ export const useGravityFormsEntries = (formId, filters = {}) => {
   return useQuery({
     queryKey: ['gravityFormsEntries', formId, filters],
     queryFn: () => fetchFromApi(`/gf/v2/forms/${formId}/entries${queryString ? `?${queryString}` : ''}`),
+    enabled: !!formId,
+  });
+};
+
+/** Fetches all Gravity Forms */
+export const useGravityForms = () => {
+  return useQuery({
+    queryKey: ['gravityForms'],
+    queryFn: () => fetchFromApi('/gf/v2/forms'),
+  });
+};
+
+/** Fetches Gravity Forms entries summary */
+export const useGravityFormsEntriesSummary = (formId) => {
+  return useQuery({
+    queryKey: ['gravityFormsEntriesSummary', formId],
+    queryFn: () => fetchFromApi(`/gf/v2/forms/${formId}/results`),
     enabled: !!formId,
   });
 };
