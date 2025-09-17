@@ -1,9 +1,9 @@
 // src/pages/AnalyticsPage.js
 
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Typography, CircularProgress, Alert, Paper, Grid } from '@mui/material';
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-import { getOrders } from '../api';
+import { useOrders } from '../hooks/useApi';
 
 const processOrderData = (orders) => {
   const revenueByDate = orders.reduce((acc, order) => {
@@ -30,27 +30,12 @@ const processOrderData = (orders) => {
 };
 
 export default function AnalyticsPage() {
-  const [chartData, setChartData] = useState({ sortedRevenue: [], sortedProducts: [] });
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const { data: orders, isLoading, isError } = useOrders();
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setLoading(true);
-        const orders = await getOrders();
-        setChartData(processOrderData(orders));
-      } catch (err) {
-        setError('Failed to load analytics data.');
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchData();
-  }, []);
+  if (isLoading) return <CircularProgress />;
+  if (isError) return <Alert severity="error">Failed to load analytics data.</Alert>;
 
-  if (loading) return <CircularProgress />;
-  if (error) return <Alert severity="error">{error}</Alert>;
+  const chartData = orders ? processOrderData(orders) : { sortedRevenue: [], sortedProducts: [] };
 
   return (
     <>

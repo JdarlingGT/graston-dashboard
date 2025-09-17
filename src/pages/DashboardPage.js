@@ -1,8 +1,7 @@
 // src/pages/DashboardPage.js
-
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Typography, Grid, Paper, CircularProgress, Alert, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Chip } from '@mui/material';
-import { getDangerZoneStatus, getOrders, getAttendees } from '../api';
+import { useDangerZoneStatus, useOrders, useAttendees } from '../hooks/useApi'; // Import the new hooks
 
 const getStatusChipColor = (status) => {
   switch (status) {
@@ -14,42 +13,23 @@ const getStatusChipColor = (status) => {
 };
 
 export default function DashboardPage() {
-  const [dangerZone, setDangerZone] = useState([]);
-  const [stats, setStats] = useState({ revenue: 0, orders: 0, attendees: 0 });
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const { data: dangerZone, isLoading: dangerLoading, isError: dangerError } = useDangerZoneStatus();
+  const { data: ordersData, isLoading: ordersLoading, isError: ordersError } = useOrders();
+  const { data: attendeesData, isLoading: attendeesLoading, isError: attendeesError } = useAttendees();
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setLoading(true);
-        const [dangerData, ordersData, attendeesData] = await Promise.all([
-          getDangerZoneStatus(),
-          getOrders(),
-          getAttendees()
-        ]);
+  const isLoading = dangerLoading || ordersLoading || attendeesLoading;
+  const isError = dangerError || ordersError || attendeesError;
 
-        setDangerZone(dangerData);
+  if (isLoading) return <CircularProgress />;
+  if (isError) return <Alert severity="error">Failed to load dashboard data. Please try again later.</Alert>;
 
-        const totalRevenue = ordersData.reduce((sum, order) => sum + parseFloat(order.total || 0), 0);
-        setStats({
-          revenue: totalRevenue,
-          orders: ordersData.length,
-          attendees: attendeesData.subscribers?.length || 0
-        });
-
-      } catch (err) {
-        setError('Failed to load dashboard data. Please try again later.');
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchData();
-  }, []);
-
-  if (loading) return <CircularProgress />;
-  if (error) return <Alert severity="error">{error}</Alert>;
+  // Calculate stats from the fetched data
+  const totalRevenue = ordersData?.reduce((sum, order) => sum + parseFloat(order.total || 0), 0) || 0;
+  const stats = {
+    revenue: totalRevenue,
+    orders: ordersData?.length || 0,
+    attendees: attendeesData?.subscribers?.length || 0
+  };
 
   return (
     <>
@@ -88,7 +68,7 @@ export default function DashboardPage() {
             </TableRow>
           </TableHead>
           <TableBody>
-            {dangerZone.map((event) => (
+            {dangerZone?.map((event) => (
               <TableRow key={event.event_id}>
                 <TableCell>{event.title}</TableCell>
                 <TableCell align="center">

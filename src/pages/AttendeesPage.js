@@ -1,9 +1,9 @@
 // src/pages/AttendeesPage.js
 
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Typography, CircularProgress, Alert } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
-import { getAttendees } from '../api';
+import { useAttendees } from '../hooks/useApi';
 
 const columns = [
   { field: 'id', headerName: 'ID', width: 90 },
@@ -18,27 +18,12 @@ const columns = [
 ];
 
 export default function AttendeesPage() {
-  const [attendees, setAttendees] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const { data: attendeesData, isLoading, isError } = useAttendees();
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setLoading(true);
-        const data = await getAttendees();
-        setAttendees(data.subscribers || []); // Data is nested under 'subscribers' key
-      } catch (err) {
-        setError('Failed to load attendees.');
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchData();
-  }, []);
+  if (isLoading) return <CircularProgress />;
+  if (isError) return <Alert severity="error">Failed to load attendees.</Alert>;
 
-  if (loading) return <CircularProgress />;
-  if (error) return <Alert severity="error">{error}</Alert>;
+  const attendees = attendeesData?.subscribers || [];
 
   return (
     <>
